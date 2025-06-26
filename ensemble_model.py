@@ -1,5 +1,9 @@
+import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
+from xgboost import XGBClassifier
+from catboost import CatBoostClassifier
+from lightgbm import LGBMClassifier
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.metrics import (
     average_precision_score,
@@ -52,9 +56,10 @@ graph_features = ['total_amount', 'pmi', 'count', 'exclusivity_amt',
 
 
 def drop_useless_columns(df, verbose=True):
-    potential_drop_cols = ['time_step','isFlaggedFraud', 'laundering_type', 'timestamp', 'id', 'tx_id', 'alert_id', 'time', 'date',
+    potential_drop_cols = ['time_step', 'isFlaggedFraud', 'laundering_type', 'timestamp', 'id', 'tx_id', 'alert_id',
+                           'time', 'date',
                            'sender', 'receiver']
-    potential_drop_cols = potential_drop_cols + ['sender_mean_amt', 'sender_std_amt', 'sender_total_amt', 'sender_txn_count', 'sender_unique_receivers', 'receiver_mean_amt', 'receiver_std_amt', 'receiver_txn_count', 'receiver_unique_senders']
+    # potential_drop_cols = potential_drop_cols + ['sender_mean_amt', 'sender_std_amt', 'sender_total_amt', 'sender_txn_count', 'sender_unique_receivers', 'receiver_mean_amt', 'receiver_std_amt', 'receiver_txn_count', 'receiver_unique_senders']
     drop_cols = [col for col in potential_drop_cols if col in df.columns]
     use_features = [col for col in df.columns if col not in drop_cols]
     if verbose:
@@ -74,7 +79,7 @@ def split_train_test_by_window(df, window_col='window_index', train_ratio: float
 
 def encode_categorical_columns(df):
     categorical_cols = df.select_dtypes(include=['object', 'category']).columns
-    print(categorical_cols)
+    #print(categorical_cols)
     df_encoded = pd.get_dummies(df, columns=categorical_cols)
     encoder = OrdinalEncoder()
     df[categorical_cols] = encoder.fit_transform(df[categorical_cols])
@@ -103,16 +108,71 @@ def train_test(train_df, test_df, model, feature_columns):
     print(f"PR-AUC: {pr_auc:.4f}")
 
 
+def get_model(name, imbalance_ratio):
+    if name == "Lightgbm":
+        return LGBMClassifier(
+            min_gain_to_split=0.0,
+            min_data_in_leaf=10,
+            n_estimators=200,
+            scale_pos_weight=100,  # if imbalanced
+            n_jobs=-1,
+            verbosity=-1
+        )
+    elif name == "Xgboost":
+        return XGBClassifier(
+            n_estimators=200,
+            learning_rate=0.1,
+            max_depth=8,
+            subsample=0.8,
+            colsample_bytree=0.8,
+            n_jobs=-1,
+            tree_method='hist',
+            scale_pos_weight=imbalance_ratio,
+            random_state=42,
+            use_label_encoder=False,
+            eval_metric='logloss'
+        )
+    elif name == "Catboost":
+        return CatBoostClassifier(
+            iterations=200,
+            learning_rate=0.1,
+            depth=8,
+            class_weights=[1.0, imbalance_ratio],
+            thread_count=-1,
+            verbose=100
+        )
+    elif name == "Randomforest":
+        return RandomForestClassifier(
+            n_estimators=200,
+            class_weight={0: 1.0, 1: imbalance_ratio},
+            n_jobs=-1,
+            random_state=42
+        )
+    else:
+        raise ValueError(f"Unsupported model: {name}")
+
+
+def compute_class_weights(y):
+    n_pos = np.sum(y == 1)
+    n_neg = np.sum(y == 0)
+    return n_neg / n_pos
+
+
 def get_args():
     parser = argparse.ArgumentParser(description="Ensemble method Training Arguments")
     parser.add_argument("--dataset_name", type=str,
                         choices=['AMLSim', 'BitcoinOTC', 'BitcoinAlpha', 'PaySim', 'SAMLSim'], default="AMLSim")
+    parser.add_argument("--model", required=True,
+                        choices=["Lightgbm", "Xgboost", "Catboost", "Randomforest"])
     return parser.parse_args()
 
 
 def main():
     args = get_args()
     dataset_name = args.dataset_name
+    model_name = args.model
+    print(f"\033[94m{dataset_name}\033[0m")
+    print(f"\033[91m{model_name}\033[0m")
     match dataset_name:
         case 'PaySim':
             df = pd.read_parquet('./data/PaySim/processed/enriched_1_8_1_data.parquet')
@@ -130,46 +190,25 @@ def main():
     df = drop_useless_columns(df)
     df = encode_categorical_columns(df)
     df = df.fillna(0)
-    print(list(df.columns))
+    # print(list(df.columns))
     default_features = [col for col in df.columns if
                         col not in graph_features and col != 'window_index' and col != 'label']
-    print(f"Default features:")
-    print(list(default_features))
-    print(f"Graph features:")
-    print(graph_features)
+
+    y = df["label"]
+    imbalance_ratio = compute_class_weights(y)
+
+    print(f"\033[94mDefault features:{len(list(default_features))}\033[0m")
+    # print(list(default_features))
+    print(f"\033[94mGraph features:{len(list(graph_features))}\033[0m")
+    # print(list(graph_features))
     train_df, test_df = split_train_test_by_window(df)
-    print("train test with default features")
-    rf_model = RandomForestClassifier(random_state=42, n_jobs=-1)
-    train_test(train_df, test_df, rf_model, default_features)
-    print("train test with also graph features")
-    rf_model = RandomForestClassifier(random_state=42, n_jobs=-1)
-    train_test(train_df, test_df, rf_model, default_features + graph_features)
+    print(f"\033[92mTrain test with default features\033[0m")
+    model = get_model(model_name, imbalance_ratio)
+    train_test(train_df, test_df, model, default_features)
+    print(f"\033[92mTrain test with also graph features\033[0m")
+    model = get_model(model_name, imbalance_ratio)
+    train_test(train_df, test_df, model, default_features + graph_features)
 
 
 if __name__ == "__main__":
     main()
-
-# print("Paysim")
-# df = pd.read_parquet('./data/PaySim/processed/enriched_1_8_1_data.parquet')
-# df = drop_useless_columns(df)
-# df = encode_categorical_columns(df)
-# df = df.fillna(0)
-#
-# print("AMLSim")
-# df = pd.read_parquet('./data/AMLSim/processed/enriched_7_8_1_data.parquet')
-# df = drop_useless_columns(df)
-# df = encode_categorical_columns(df)
-# df = df.fillna(0)
-# print("SAMLSim")
-# df = pd.read_parquet('./data/SAMLSim/processed/enriched_7_8_1_data.parquet')
-# df = drop_useless_columns(df)
-# df = encode_categorical_columns(df)
-# df = df.fillna(0)
-# print(list(df.columns))
-# train_df, test_df = split_train_test_by_window(df)
-# print(df.columns)
-# print("train test with default features")
-# rf_model = RandomForestClassifier(random_state=42, n_jobs=-1)
-# train_test(train_df, test_df, rf_model, default_features)
-# print("train test with also graph features")
-# train_test(train_df, test_df, rf_model, default_features + graph_features)

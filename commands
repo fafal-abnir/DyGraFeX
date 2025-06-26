@@ -1,0 +1,25 @@
+python3 ensemble_model.py --dataset_name AMLSim --model Lightgbm;
+python3 ensemble_model.py --dataset_name AMLSim --model Xgboost;
+python3 ensemble_model.py --dataset_name AMLSim --model Catboost;
+python3 ensemble_model.py --dataset_name AMLSim --model Randomforest;
+
+python3 ensemble_model.py --dataset_name PaySim --model Lightgbm;
+python3 ensemble_model.py --dataset_name PaySim --model Xgboost;
+python3 ensemble_model.py --dataset_name PaySim --model Catboost;
+python3 ensemble_model.py --dataset_name PaySim --model Randomforest;
+
+python3 ensemble_model.py --dataset_name SAMLSim --model Lightgbm;
+python3 ensemble_model.py --dataset_name SAMLSim --model Xgboost;
+python3 ensemble_model.py --dataset_name SAMLSim --model Catboost;
+python3 ensemble_model.py --dataset_name SAMLSim --model Randomforest;
+
+python3 ensemble_model.py --dataset_name BitcoinOTC --model Lightgbm;
+python3 ensemble_model.py --dataset_name BitcoinOTC --model Xgboost;
+python3 ensemble_model.py --dataset_name BitcoinOTC --model Catboost;
+python3 ensemble_model.py --dataset_name BitcoinOTC --model Randomforest;
+
+python3 ensemble_model.py --dataset_name BitcoinAlpha --model Lightgbm;
+python3 ensemble_model.py --dataset_name BitcoinAlpha --model Xgboost;
+python3 ensemble_model.py --dataset_name BitcoinAlpha --model Catboost;
+python3 ensemble_model.py --dataset_name BitcoinAlpha --model Randomforest;
+
