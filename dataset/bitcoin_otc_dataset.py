@@ -8,9 +8,14 @@ from dataset.temporal_fraud_dataset import TemporalFraudDataset
 
 class BitcoinOTCDataset(TemporalFraudDataset):
 
-    def __init__(self, save_dir: str = "data/BitcoinOTC", window_days: int = 7):
-        self.window_days = window_days
-        super().__init__(save_dir=save_dir, window_size=window_days)
+    def __init__(self, save_dir: str = "data/BitcoinOTC", window_size: int = 7, time_step: int = 7,
+                 graph_window_size: int = 56,
+                 normalize_feature_names=True):
+        self.window_size = window_size
+        self.time_step = time_step
+        self.graph_window_size = graph_window_size
+        super().__init__(save_dir=save_dir, window_size=window_size, time_step=time_step,
+                         graph_window_size=graph_window_size, normalize_feature_names=normalize_feature_names)
 
     @property
     def raw_file_names(self):
@@ -32,7 +37,7 @@ class BitcoinOTCDataset(TemporalFraudDataset):
         df["label"] = (df["rating"] > 0).astype(int)
 
         min_time = df["datetime"].min()
-        df["window_index"] = ((df["datetime"] - min_time).dt.days // self.window_days).astype(int)
+        df["window_index"] = ((df["datetime"] - min_time).dt.days // self.window_size).astype(int)
 
         output = df[["sender", "receiver", "timestamp", "amount", "label", "window_index"]].copy()
         output.to_parquet(parquet_file_path, index=False)

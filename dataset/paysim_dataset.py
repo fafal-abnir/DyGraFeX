@@ -3,9 +3,14 @@ from dataset.temporal_fraud_dataset import TemporalFraudDataset
 
 
 class PaySimDataset(TemporalFraudDataset):
-    def __init__(self, save_dir: str = "data/PaySim", window_days: int = 1):
-        self.window_days = window_days
-        super().__init__(save_dir=save_dir, window_size=window_days)
+    def __init__(self, save_dir: str = "data/PaySim", window_size: int = 1, time_step: int = 1,
+                 graph_window_size: int = 8,
+                 normalize_feature_names=True):
+        self.window_size = window_size
+        self.time_step = time_step
+        self.graph_window_size = graph_window_size
+        super().__init__(save_dir=save_dir, window_size=window_size, time_step=time_step,
+                         graph_window_size=graph_window_size, normalize_feature_names=normalize_feature_names)
 
     @property
     def raw_file_names(self):
@@ -40,7 +45,7 @@ class PaySimDataset(TemporalFraudDataset):
         }, inplace=True)
 
         steps_per_day = 24
-        df["window_index"] = (df["timestamp"] // (steps_per_day * self.window_days)).astype(int)
+        df["window_index"] = (df["timestamp"] // (steps_per_day * self.window_size)).astype(int)
 
         all_ids = pd.unique(df[["sender", "receiver"]].values.ravel())
         id_mapping = {old_id: new_id for new_id, old_id in enumerate(all_ids)}

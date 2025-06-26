@@ -4,9 +4,14 @@ from dataset.temporal_fraud_dataset import TemporalFraudDataset
 
 class AMLSimDataset(TemporalFraudDataset):
 
-    def __init__(self, save_dir: str = "data/AMLSim", window_days: int = 7):
-        self.window_days = window_days
-        super().__init__(save_dir=save_dir, window_size=window_days)
+    def __init__(self, save_dir: str = "data/AMLSim", window_size: int = 7, time_step: int = 1,
+                 graph_window_size: int = 8,
+                 normalize_feature_names=True):
+        self.window_size = window_size
+        self.time_step = time_step
+        self.graph_window_size = graph_window_size
+        super().__init__(save_dir=save_dir, window_size=window_size, time_step=time_step,
+                         graph_window_size=graph_window_size, normalize_feature_names=normalize_feature_names)
 
     @property
     def raw_file_names(self):
@@ -19,7 +24,6 @@ class AMLSimDataset(TemporalFraudDataset):
             raise RuntimeError(
                 f"AMLSim must be generated or downloaded manually"
                 f"Place the accounts.csv and `transactions.csv` in:{self.raw_dir}")
-
 
     def prepare(self, force_reload=False):
         parquet_file_path = self.processed_dir / "data.parquet"
@@ -43,10 +47,9 @@ class AMLSimDataset(TemporalFraudDataset):
             "is_fraud": "label",
         }, inplace=True)
 
-
         # Window index
         min_time = df["timestamp"].min()
-        df["window_index"] = ((df["timestamp"] - min_time)// self.window_days).astype(int)
+        df["window_index"] = ((df["timestamp"] - min_time) // self.window_size).astype(int)
 
         # Reindex sender and receiver
         all_ids = pd.unique(df[["sender", "receiver"]].values.ravel())
@@ -57,6 +60,3 @@ class AMLSimDataset(TemporalFraudDataset):
         # Save to parquet
         df.to_parquet(parquet_file_path, index=False)
         print(f"Saved processed data to: {parquet_file_path}")
-
-
-
