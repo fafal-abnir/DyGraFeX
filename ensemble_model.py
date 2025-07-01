@@ -58,7 +58,7 @@ graph_features = ['total_amount', 'pmi', 'count', 'exclusivity_amt',
 def drop_useless_columns(df, verbose=True):
     potential_drop_cols = ['time_step', 'isFlaggedFraud', 'laundering_type', 'timestamp', 'id', 'tx_id', 'alert_id',
                            'time', 'date',
-                           'sender', 'receiver']
+                           ]
     # potential_drop_cols = potential_drop_cols + ['sender_mean_amt', 'sender_std_amt', 'sender_total_amt', 'sender_txn_count', 'sender_unique_receivers', 'receiver_mean_amt', 'receiver_std_amt', 'receiver_txn_count', 'receiver_unique_senders']
     drop_cols = [col for col in potential_drop_cols if col in df.columns]
     use_features = [col for col in df.columns if col not in drop_cols]
@@ -68,18 +68,24 @@ def drop_useless_columns(df, verbose=True):
     return df[use_features]
 
 
-def split_train_test_by_window(df, window_col='window_index', train_ratio: float = 0.8):
+def split_train_test_by_window(df, window_col='window_index', train_ratio: float = 0.8, remove_leakage=False):
     unique_windows = sorted(df[window_col].unique())
     n_train = int(len(unique_windows) * train_ratio)
     train_windows = set(unique_windows[:n_train])
     train_df = df[df[window_col].isin(train_windows)].copy()
     test_df = df[~df[window_col].isin(train_windows)].copy()
+    if remove_leakage:
+        train_pairs = set(frozenset((row['sender'], row['receiver'])) for _, row in train_df.iterrows())
+        test_df = test_df[~test_df.apply(
+            lambda row: frozenset((row['sender'], row['receiver'])) in train_pairs, axis=1
+        )].copy()
+
     return train_df, test_df
 
 
 def encode_categorical_columns(df):
     categorical_cols = df.select_dtypes(include=['object', 'category']).columns
-    #print(categorical_cols)
+    # print(categorical_cols)
     df_encoded = pd.get_dummies(df, columns=categorical_cols)
     encoder = OrdinalEncoder()
     df[categorical_cols] = encoder.fit_transform(df[categorical_cols])
@@ -164,6 +170,7 @@ def get_args():
                         choices=['AMLSim', 'BitcoinOTC', 'BitcoinAlpha', 'PaySim', 'SAMLSim'], default="AMLSim")
     parser.add_argument("--model", required=True,
                         choices=["Lightgbm", "Xgboost", "Catboost", "Randomforest"])
+    parser.add_argument("--remove_leakage", action="store_true", help="remove duplicate pairs from train_test")
     return parser.parse_args()
 
 
@@ -171,6 +178,7 @@ def main():
     args = get_args()
     dataset_name = args.dataset_name
     model_name = args.model
+    remove_leakage = args.remove_leakage
     print(f"\033[94m{dataset_name}\033[0m")
     print(f"\033[91m{model_name}\033[0m")
     match dataset_name:
@@ -197,11 +205,13 @@ def main():
     y = df["label"]
     imbalance_ratio = compute_class_weights(y)
 
-    print(f"\033[94mDefault features:{len(list(default_features))}\033[0m")
+    print(f"\033[94mDefault features:{len(list(default_features))-2}\033[0m")
     # print(list(default_features))
-    print(f"\033[94mGraph features:{len(list(graph_features))}\033[0m")
+    print(f"\033[94mGraph features:{len(list(graph_features))-2}\033[0m")
     # print(list(graph_features))
-    train_df, test_df = split_train_test_by_window(df)
+    train_df, test_df = split_train_test_by_window(df,remove_leakage=remove_leakage)
+    print(f"Number of train rows:{len(train_df)}")
+    print(f"Number of test rows:{len(test_df)}")
     print(f"\033[92mTrain test with default features\033[0m")
     model = get_model(model_name, imbalance_ratio)
     train_test(train_df, test_df, model, default_features)
