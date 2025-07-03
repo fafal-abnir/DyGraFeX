@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from xgboost import XGBClassifier
 from catboost import CatBoostClassifier
 from lightgbm import LGBMClassifier
@@ -97,21 +97,32 @@ def train_test(train_df, test_df, model, feature_columns):
     y_train = train_df['label']
     X_test = test_df[feature_columns]
     y_test = test_df['label']
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    y_proba = model.predict_proba(X_test)[:, 1]  # Probabilities for the positive class
+    if isinstance(model, IsolationForest):
+        model.fit(X_train)
+        # Anomaly scores: higher means more abnormal
+        scores = -model.decision_function(X_test)
+        # Threshold using training distribution if needed
+        precision, recall_points, _ = precision_recall_curve(y_test, scores)
+        pr_auc = auc(recall_points, precision)
+        avg_precision = average_precision_score(y_test, scores)
+        print(f"IsolationForest -- Average Precision: {avg_precision:.4f}")
+        print(f"PR-AUC: {pr_auc:.4f}")
+    else:
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        y_proba = model.predict_proba(X_test)[:, 1]  # Probabilities for the positive class
 
-    avg_precision = average_precision_score(y_test, y_proba)
-    recall = recall_score(y_test, y_pred)
-    roc_auc = roc_auc_score(y_test, y_proba)
+        avg_precision = average_precision_score(y_test, y_proba)
+        recall = recall_score(y_test, y_pred)
+        roc_auc = roc_auc_score(y_test, y_proba)
 
-    precision, recall_points, _ = precision_recall_curve(y_test, y_proba)
-    pr_auc = auc(recall_points, precision)
+        precision, recall_points, _ = precision_recall_curve(y_test, y_proba)
+        pr_auc = auc(recall_points, precision)
 
-    print(f"Average Precision: {avg_precision:.4f}")
-    print(f"Recall: {recall:.4f}")
-    print(f"ROC-AUC: {roc_auc:.4f}")
-    print(f"PR-AUC: {pr_auc:.4f}")
+        print(f"Average Precision: {avg_precision:.4f}")
+        print(f"Recall: {recall:.4f}")
+        print(f"ROC-AUC: {roc_auc:.4f}")
+        print(f"PR-AUC: {pr_auc:.4f}")
 
 
 def get_model(name, imbalance_ratio):
@@ -145,7 +156,7 @@ def get_model(name, imbalance_ratio):
             depth=8,
             class_weights=[1.0, imbalance_ratio],
             thread_count=-1,
-            verbose=100
+            verbose=True
         )
     elif name == "Randomforest":
         return RandomForestClassifier(
@@ -153,6 +164,13 @@ def get_model(name, imbalance_ratio):
             class_weight={0: 1.0, 1: imbalance_ratio},
             n_jobs=-1,
             random_state=42
+        )
+    elif name == "IsolationForest":
+        return IsolationForest(
+            n_estimators=200,
+            contamination='auto',
+            random_state=42,
+            n_jobs=-1
         )
     else:
         raise ValueError(f"Unsupported model: {name}")
@@ -169,7 +187,7 @@ def get_args():
     parser.add_argument("--dataset_name", type=str,
                         choices=['AMLSim', 'BitcoinOTC', 'BitcoinAlpha', 'PaySim', 'SAMLSim'], default="AMLSim")
     parser.add_argument("--model", required=True,
-                        choices=["Lightgbm", "Xgboost", "Catboost", "Randomforest"])
+                        choices=["Lightgbm", "Xgboost", "Catboost", "Randomforest", "IsolationForest"])
     parser.add_argument("--remove_leakage", action="store_true", help="remove duplicate pairs from train_test")
     return parser.parse_args()
 
