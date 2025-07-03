@@ -1,0 +1,9 @@
+dataset_name: SAMLSim
+drop_ratio: 0.9
+dropout: 0.0
+epochs: 1000
+gnn_type: GIN
+hidden_size: 64
+learning_rate: 0.005
+num_layers: 2
+use_graph_features: true

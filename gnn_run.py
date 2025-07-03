@@ -104,6 +104,7 @@ def create_pg_data(df: pd.DataFrame, cat_features, num_features, start_window_ra
 
 def prepare_pg_graph_data(df, cat_features=None, num_features=None, drop_ratio=0.0, use_graph_features=True):
     df = df.copy()
+
     # Encode sender/receiver to integer node ids
     node_encoder = LabelEncoder()
     all_nodes = pd.concat([df['sender'], df['receiver']])
@@ -143,6 +144,25 @@ def prepare_pg_graph_data(df, cat_features=None, num_features=None, drop_ratio=0
         edge_features = cat_features + num_features
     else:
         edge_features = [col for col in (cat_features + num_features) if col not in graph_features]
+    # Split logic
+    all_windows = sorted(df['window_index'].unique())
+    n = len(all_windows)
+    train_windows = set(all_windows[:int(0.8 * n)])
+    val_windows = set(all_windows[int(0.8 * n):int(0.9 * n)])
+    test_windows = set(all_windows[int(0.9 * n):int(1.0 * n)])
+
+    # df['split'] = 'test'
+    df.loc[df['window_index'].isin(train_windows), 'split'] = 'train'
+    df.loc[df['window_index'].isin(val_windows), 'split'] = 'val'
+    df.loc[df['window_index'].isin(test_windows), 'split'] = 'test'
+    if drop_ratio > 0.0:
+        train_mask = df['split'] == 'train'
+        zero_rows = df[train_mask & (df['label'] == 0)]
+        rows_to_drop = zero_rows.sample(frac=drop_ratio, random_state=42)
+        print(f"shape of df before under sampling {len(df)}")
+        df = df.drop(rows_to_drop.index)
+        print(f"shape of df after under sampling {len(df)}")
+
     feature_df = df[edge_features].copy()
     feature_df.fillna(0, inplace=True)
     cat_features = [col for col in cat_features if col in edge_features]
@@ -156,25 +176,10 @@ def prepare_pg_graph_data(df, cat_features=None, num_features=None, drop_ratio=0
     features = preprocessor.fit_transform(feature_df).astype(np.float32)
     edge_attr = torch.tensor(features, dtype=torch.float)
 
+
     # Labels
     labels = torch.tensor(df['label'].values, dtype=torch.long)
 
-    # Split logic
-    all_windows = sorted(df['window_index'].unique())
-    n = len(all_windows)
-    train_windows = set(all_windows[:int(0.8 * n)])
-    val_windows = set(all_windows[int(0.8 * n):int(0.9 * n)])
-    test_windows = set(all_windows[int(0.9 * n):int(1.0 * n)])
-
-    # df['split'] = 'test'
-    df.loc[df['window_index'].isin(train_windows), 'split'] = 'train'
-    df.loc[df['window_index'].isin(val_windows), 'split'] = 'val'
-    df.loc[df['window_index'].isin(test_windows), 'split'] = 'test'
-    if drop_ratio >0.0:
-        train_mask = df['split'] == 'train'
-        zero_rows = df[train_mask & (df['label'] == 0)]
-        rows_to_drop = zero_rows.sample(frac=drop_ratio, random_state=42)
-        df = df.drop(rows_to_drop.index)
     # Create PyG Data objects
     def create_data(split_name):
         mask = df['split'] == split_name
@@ -276,6 +281,8 @@ def main():
     print(test_data)
     # Start training and testing.
     train_loader = DataLoader([train_data], batch_size=1)
+    # cluster_data = ClusterData(train_data, num_parts=100, recursive=False)
+    # train_loader = ClusterLoader(cluster_data, batch_size=4, shuffle=True)
     val_loader = DataLoader([val_data], batch_size=1)
     test_loader = DataLoader([test_data], batch_size=1)
     trainer = L.Trainer(
