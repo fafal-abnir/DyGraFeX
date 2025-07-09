@@ -1,0 +1,9 @@
+dataset_name: EllipticPP
+drop_ratio: 0.5
+dropout: 0.2
+epochs: 1000
+gnn_type: GAT
+hidden_size: 64
+learning_rate: 0.005
+num_layers: 2
+use_graph_features: true

@@ -15,7 +15,7 @@ from models.model import EdgeFraudNet
 from models.lightning_modules import LightningEdgeGNN
 from pytorch_lightning.callbacks import ModelCheckpoint
 
-drop_cols = ['time_step', 'isFlaggedFraud', 'laundering_type', 'timestamp', 'id', 'tx_id', 'alert_id',
+drop_cols = ['time_step', 'isFlaggedFraud', 'laundering_type', 'timestamp', 'txId', 'id', 'tx_id', 'alert_id',
              'time', 'date',
              'sender', 'receiver']
 
@@ -211,7 +211,7 @@ def get_args():
     parser.add_argument("--num_layers", type=int, default=2, help="Number of GNN layers")
     parser.add_argument("--dropout", type=float, default=0.0, help="dropout rate")
     parser.add_argument("--dataset_name", type=str,
-                        choices=['AMLSim', 'BitcoinOTC', 'BitcoinAlpha', 'PaySim', 'SAMLSim'], default="AMLSim")
+                        choices=['AMLSim', 'BitcoinOTC', 'BitcoinAlpha', 'EllipticPP', 'PaySim', 'SAMLSim'], default="AMLSim")
     parser.add_argument("--drop_ratio", type=float, default=0.0, help="drop_ratio of dataset (default:0.0")
     parser.add_argument("--use_graph_features", action="store_true", help="enable using graph features in GNN")
     return parser.parse_args()
@@ -237,12 +237,14 @@ def main():
             df = pd.read_parquet('./data/AMLSim/processed/enriched_7_8_1_data.parquet')
         case 'SAMLSim':
             df = pd.read_parquet('./data/SAMLSim/processed/enriched_7_8_1_data.parquet')
+        case 'EllipticPP':
+            df = pd.read_parquet('./data/EllipticPP/processed/enriched_1_8_1_data.parquet')
         case 'BitcoinOTC':
             df = pd.read_parquet('./data/BitcoinOTC/processed/enriched_7_56_7_data.parquet')
         case 'BitcoinAlpha':
             df = pd.read_parquet('./data/BitcoinAlpha/processed/enriched_7_56_7_data.parquet')
         case _:
-            RuntimeError(f"Dataset {dataset_name} is not defined.")
+            raise RuntimeError(f"Dataset {dataset_name} is not defined.")
 
     # potential_drop_cols = potential_drop_cols + ['sender_mean_amt', 'sender_std_amt', 'sender_total_amt', 'sender_txn_count', 'sender_unique_receivers', 'receiver_mean_amt', 'receiver_std_amt', 'receiver_txn_count', 'receiver_unique_senders']
     # drop_cols = [col for col in potential_drop_cols if col in df.columns]

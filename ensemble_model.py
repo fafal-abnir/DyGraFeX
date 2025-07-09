@@ -56,7 +56,8 @@ graph_features = ['total_amount', 'pmi', 'count', 'exclusivity_amt',
 
 
 def drop_useless_columns(df, verbose=True):
-    potential_drop_cols = ['time_step', 'isFlaggedFraud', 'laundering_type', 'timestamp', 'id', 'tx_id', 'alert_id',
+    potential_drop_cols = ['time_step', 'isFlaggedFraud', 'laundering_type', 'txId', 'timestamp', 'id', 'tx_id',
+                           'alert_id',
                            'time', 'date',
                            ]
     # potential_drop_cols = potential_drop_cols + ['sender_mean_amt', 'sender_std_amt', 'sender_total_amt', 'sender_txn_count', 'sender_unique_receivers', 'receiver_mean_amt', 'receiver_std_amt', 'receiver_txn_count', 'receiver_unique_senders']
@@ -130,14 +131,14 @@ def get_model(name, imbalance_ratio):
         return LGBMClassifier(
             min_gain_to_split=0.0,
             min_data_in_leaf=10,
-            n_estimators=200,
+            n_estimators=300,
             scale_pos_weight=100,  # if imbalanced
             n_jobs=-1,
             verbosity=-1
         )
     elif name == "Xgboost":
         return XGBClassifier(
-            n_estimators=200,
+            n_estimators=800,
             learning_rate=0.1,
             max_depth=8,
             subsample=0.8,
@@ -151,16 +152,16 @@ def get_model(name, imbalance_ratio):
         )
     elif name == "Catboost":
         return CatBoostClassifier(
-            iterations=200,
+            iterations=1000,
             learning_rate=0.1,
             depth=8,
             class_weights=[1.0, imbalance_ratio],
             thread_count=-1,
-            verbose=True
+            verbose=False
         )
     elif name == "Randomforest":
         return RandomForestClassifier(
-            n_estimators=200,
+            n_estimators=1000,
             class_weight={0: 1.0, 1: imbalance_ratio},
             n_jobs=-1,
             random_state=42
@@ -185,10 +186,13 @@ def compute_class_weights(y):
 def get_args():
     parser = argparse.ArgumentParser(description="Ensemble method Training Arguments")
     parser.add_argument("--dataset_name", type=str,
-                        choices=['AMLSim', 'BitcoinOTC', 'BitcoinAlpha', 'PaySim', 'SAMLSim'], default="AMLSim")
+                        choices=['AMLSim', 'EllipticPP', 'BitcoinOTC', 'BitcoinAlpha', 'PaySim', 'SAMLSim'],
+                        default="AMLSim")
     parser.add_argument("--model", required=True,
                         choices=["Lightgbm", "Xgboost", "Catboost", "Randomforest", "IsolationForest"])
     parser.add_argument("--remove_leakage", action="store_true", help="remove duplicate pairs from train_test")
+    parser.add_argument("--undersample_frac", type=float, default=1.0,
+                        help="Under-sampling frac for majority train data")
     return parser.parse_args()
 
 
@@ -197,6 +201,7 @@ def main():
     dataset_name = args.dataset_name
     model_name = args.model
     remove_leakage = args.remove_leakage
+    undersample_frac = args.undersample_frac
     print(f"\033[94m{dataset_name}\033[0m")
     print(f"\033[91m{model_name}\033[0m")
     match dataset_name:
@@ -210,6 +215,8 @@ def main():
             df = pd.read_parquet('./data/BitcoinOTC/processed/enriched_7_56_7_data.parquet')
         case 'BitcoinAlpha':
             df = pd.read_parquet('./data/BitcoinAlpha/processed/enriched_7_56_7_data.parquet')
+        case 'EllipticPP':
+            df = pd.read_parquet('./data/EllipticPP/processed/enriched_1_8_1_data.parquet')
         case _:
             RuntimeError(f"Dataset {dataset_name} is not defined.")
 
@@ -223,13 +230,25 @@ def main():
     y = df["label"]
     imbalance_ratio = compute_class_weights(y)
 
-    print(f"\033[94mDefault features:{len(list(default_features))-2}\033[0m")
+    print(f"\033[94mDefault features:{len(list(default_features)) - 2}\033[0m")
     # print(list(default_features))
-    print(f"\033[94mGraph features:{len(list(graph_features))-2}\033[0m")
+    print(f"\033[94mGraph features:{len(list(graph_features)) - 2}\033[0m")
     # print(list(graph_features))
-    train_df, test_df = split_train_test_by_window(df,remove_leakage=remove_leakage)
+    train_df, test_df = split_train_test_by_window(df, remove_leakage=remove_leakage)
+    if undersample_frac < 1.0:
+        df_majority = train_df[train_df['label'] == 0]
+        df_minority = train_df[train_df['label'] == 1]
+        df_majority_reduced = df_majority.sample(frac=undersample_frac, random_state=42)
+        train_df_downsampled = pd.concat([df_majority_reduced, df_minority])
+        train_df = train_df_downsampled.sample(frac=1, random_state=42).reset_index(drop=True)
+    non_fraud_count = (train_df['label'] == 0).sum()
+    fraud_count = (train_df['label'] == 1).sum()
     print(f"Number of train rows:{len(train_df)}")
+    print(f"Non-Fraud count:{non_fraud_count}, Fraud count:{fraud_count}")
+    non_fraud_count = (test_df['label'] == 0).sum()
+    fraud_count = (test_df['label'] == 1).sum()
     print(f"Number of test rows:{len(test_df)}")
+    print(f"Non-Fraud count:{non_fraud_count}, Fraud count:{fraud_count}")
     print(f"\033[92mTrain test with default features\033[0m")
     model = get_model(model_name, imbalance_ratio)
     train_test(train_df, test_df, model, default_features)

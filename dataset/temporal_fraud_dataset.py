@@ -2,7 +2,7 @@ import pandas as pd
 from pathlib import Path
 from abc import ABC, abstractmethod
 from typing import Union, List, Tuple, Literal
-
+from tqdm import tqdm
 from utils.community_feature_extraction import enrich_with_edge_features, enrich_with_community_features
 from utils.node_feature_extraction import enrich_with_pagerank, enrich_with_HIT
 from utils.utils import generate_graph
@@ -10,7 +10,7 @@ from utils.utils import generate_graph
 
 class TemporalFraudDataset(ABC):
     def __init__(self, save_dir: str = "data", window_size: int = 7, time_step: int = 1, graph_window_size: int = 7,
-                 normalize_feature_names=True):
+                 force_reload=False):
         self.save_dir = Path(save_dir)
         self.raw_dir = Path(f"{self.save_dir}/raw_dir")
         self.processed_dir = Path(f"{self.save_dir}/processed")
@@ -21,14 +21,14 @@ class TemporalFraudDataset(ABC):
         self.save_dir.mkdir(parents=True, exist_ok=True)
         self.processed_dir.mkdir(parents=True, exist_ok=True)
         self.download()
-        self.prepare(normalize_feature_names)
+        self.prepare(force_reload=force_reload)
 
     @property
     def raw_file_names(self) -> Union[str, List[str], Tuple[str, ...]]:
         raise NotImplementedError
 
     @abstractmethod
-    def prepare(self, normalize_feature_names):
+    def prepare(self, force_reload):
         pass
 
     @abstractmethod

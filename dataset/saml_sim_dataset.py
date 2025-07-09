@@ -7,10 +7,10 @@ class SAMLSimDataset(TemporalFraudDataset):
 
     def __init__(self, save_dir: str = "data/SAMLSim", window_size: int = 7, time_step: int = 1,
                  graph_window_size: int = 8,
-                 normalize_feature_names=True):
+                 force_reload=False):
         self.window_days = window_size
         super().__init__(save_dir=save_dir, window_size=window_size, time_step=time_step,
-                         graph_window_size=graph_window_size, normalize_feature_names=normalize_feature_names)
+                         graph_window_size=graph_window_size, force_reload=force_reload)
 
     @property
     def raw_file_names(self):
