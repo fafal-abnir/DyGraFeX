@@ -68,6 +68,7 @@ class LightningEdgeGNN(L.LightningModule):
         self.log("train_aucnpr", aucnpr, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         self.log("train_au_roc", auc_roc, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         self.log("train_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        torch.cuda.empty_cache()
         return loss
 
     def validation_step(self, batch, batch_idx):

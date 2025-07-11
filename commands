@@ -128,3 +128,15 @@ python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_
 python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=128 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
 python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=128 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
 
+#### Sliding GNN
+#AMLSim
+python3 sliding_gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
+python3 sliding_gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000 --use_graph_features;
+python3 sliding_gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
+python3 sliding_gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000 --use_graph_features;
+python3 sliding_gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
+python3 sliding_gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000 --use_graph_features;
+python3 sliding_gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GIN --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
+python3 sliding_gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GIN --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000 --use_graph_features;
+python3 sliding_gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=128 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
+python3 sliding_gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=128 --dropout=0.2 --learning_rate=0.005 --epochs=1000 --use_graph_features;

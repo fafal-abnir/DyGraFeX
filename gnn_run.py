@@ -7,13 +7,12 @@ import numpy as np
 from datetime import datetime
 from torch_geometric.data import Data, DataLoader
 from torch_geometric.utils import degree
-from torch_geometric.loader import ClusterData, ClusterLoader
 import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from models.model import EdgeFraudNet
 from models.lightning_modules import LightningEdgeGNN
-from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 
 drop_cols = ['time_step', 'isFlaggedFraud', 'laundering_type', 'timestamp', 'txId', 'id', 'tx_id', 'alert_id',
              'time', 'date',
@@ -261,7 +260,7 @@ def main():
     # train_data = create_pg_data(df, categorical_cols, numerical_cols, 28,32)
     # val_data = create_pg_data(df, categorical_cols, numerical_cols, 33,35)
     # test_data = create_pg_data(df, categorical_cols, numerical_cols, 36,39)
-    lightning_root_dir = "experiments/gnn_run/edge_level"
+    lightning_root_dir = "experiments/gnn_run/edge_level/normal"
     experiment_datetime = datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
     experiments_dir = f"{lightning_root_dir}/{dataset_name}/{gnn_type}/{experiment_datetime}"
     model = EdgeFraudNet(train_data.x.shape[1], edge_attr_dim=train_data.edge_attr.size(1), hidden_size=hidden_size,
@@ -276,6 +275,11 @@ def main():
         save_weights_only=True,
         dirpath=experiments_dir,
         filename="best-checkpoint"
+    )
+    early_stopping_callback = EarlyStopping(
+        monitor='val_avg_pr',
+        mode='max',
+        patience=30
     )
     print(f"\033[93m{vars(args)}\033[0m")
     print(train_data)
@@ -295,7 +299,7 @@ def main():
         logger=csv_logger,
         log_every_n_steps=5,
         max_epochs=epochs,
-        callbacks=[checkpoint_callback]
+        callbacks=[checkpoint_callback,early_stopping_callback]
     )
     print("Starting Training")
     trainer.fit(lightningModule, train_loader, val_loader)

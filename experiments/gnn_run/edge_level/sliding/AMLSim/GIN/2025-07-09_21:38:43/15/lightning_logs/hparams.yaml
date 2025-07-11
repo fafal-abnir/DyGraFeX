@@ -1,0 +1,10 @@
+dataset_name: AMLSim
+drop_ratio: 0.0
+dropout: 0.2
+epochs: 1000
+gnn_type: GIN
+hidden_size: 128
+learning_rate: 0.005
+num_layers: 1
+sliding_window_size: 10
+use_graph_features: true
