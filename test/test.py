@@ -7,7 +7,7 @@ python3 gnn_run.py --dataset_name EllipticPP --num_layers=1 --gnn_type=GINE --hi
 python3 gnn_run.py --dataset_name EllipticPP --num_layers=1 --gnn_type=GINE --hidden_size=64 --dropout=0.2 --learning_rate=0.002 --epochs=1000;
 python3 gnn_run.py --dataset_name EllipticPP --num_layers=1 --gnn_type=GINE --hidden_size=64 --dropout=0.2 --learning_rate=0.002 --epochs=1000 --use_graph_features;
 python3 gnn_run.py --dataset_name EllipticPP --num_layers=1 --gnn_type=GINE --hidden_size=64 --dropout=0.2 --learning_rate=0.002 --epochs=1000;
-python3 gnn_run.py --dataset_name EllipticPP --num_layers=1 --gnn_type=GINE --hidden_size=64 --dropout=0.2 --learning_rate=0.002 --epochs=1000 --use_graph_features;
+python3 gnn_run.py --dataset_nme EllipticPP --num_layers=1 --gnn_type=GINE --hidden_size=64 --dropout=0.2 --learning_rate=0.002 --epochs=1000 --use_graph_features;
 python3 gnn_run.py --dataset_name EllipticPP --num_layers=1 --gnn_type=GINE --hidden_size=64 --dropout=0.2 --learning_rate=0.002 --epochs=1000;
 python3 gnn_run.py --dataset_name EllipticPP --num_layers=1 --gnn_type=GINE --hidden_size=64 --dropout=0.2 --learning_rate=0.002 --epochs=1000 --use_graph_features;
 
