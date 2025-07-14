@@ -1,4 +1,3 @@
-import networkx as nx
 import torch
 import pytorch_lightning as L
 from pytorch_lightning.loggers import CSVLogger
@@ -6,11 +5,10 @@ import argparse
 import numpy as np
 from datetime import datetime
 from torch_geometric.data import Data, DataLoader
-from torch_geometric.utils import degree
 import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-from models.model import EdgeFraudNet
+from models.model import EdgeFraudNet, EdgeFraudNetEdgeMP
 from models.lightning_modules import LightningEdgeGNN
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 
@@ -101,7 +99,8 @@ def create_pg_data(df: pd.DataFrame, cat_features, num_features, start_window_ra
     return Data(x=x, edge_index=edge_index, edge_attr=edge_attr, y=y)
 
 
-def prepare_pg_graph_data(df, cat_features=None, num_features=None, drop_ratio=0.0, use_graph_features=True):
+def prepare_pg_graph_data(df, cat_features=None, num_features=None, drop_ratio=0.0, use_graph_features=True,
+                          feature_agg_fun="mean"):
     df = df.copy()
 
     # Encode sender/receiver to integer node ids
@@ -113,34 +112,38 @@ def prepare_pg_graph_data(df, cat_features=None, num_features=None, drop_ratio=0
 
     # Edge index and number of nodes
     all_edges = torch.tensor(df[['sender', 'receiver']].values.T, dtype=torch.long)
-    num_nodes = all_edges.max().item() + 1
 
-    # Build NetworkX graph for PageRank and clustering coefficient
-    G = nx.DiGraph()
-    G.add_edges_from(df[['sender', 'receiver']].values.tolist())
-
-    pagerank = nx.pagerank(G)
-    clustering = nx.clustering(G.to_undirected())  # clustering only makes sense on undirected graphs
-
-    # Convert node stats to tensors
-    pr = torch.zeros(num_nodes, 1)
-    clust = torch.zeros(num_nodes, 1)
-    for node, idx in pagerank.items():
-        pr[node] = idx
-    for node, val in clustering.items():
-        clust[node] = val
-
-    # Degree features
-    in_deg = degree(all_edges[1], num_nodes=num_nodes).unsqueeze(1)
-    out_deg = degree(all_edges[0], num_nodes=num_nodes).unsqueeze(1)
-    total_deg = in_deg + out_deg
-
-    # node features
-    node_features = torch.cat([in_deg, out_deg, total_deg, pr, clust], dim=1)
+    # Node
+    if use_graph_features:
+        sender_cols = [col for col in df.columns if col.startswith("sender_")]
+        receiver_cols = [col for col in df.columns if col.startswith("receiver_")]
+    else:
+        sender_cols = [col for col in df.columns if col.startswith("sender_") and (not col in graph_features)]
+        receiver_cols = [col for col in df.columns if col.startswith("receiver_") and (not col in graph_features)]
+    sender_feats = df[['sender'] + sender_cols].copy()
+    receiver_feats = df[['receiver'] + receiver_cols].copy()
+    sender_feats.columns = ['node'] + [col.replace('sender_', '') for col in sender_cols]
+    receiver_feats.columns = ['node'] + [col.replace('receiver_', '') for col in receiver_cols]
+    print(f"\033[90mSender features it is same as receiver:\033[0m")
+    print(sender_feats.columns)
+    all_node_feats = pd.concat([sender_feats, receiver_feats], ignore_index=True)
+    if feature_agg_fun == "mean":
+        node_feature_df = all_node_feats.groupby('node').mean()
+    elif feature_agg_fun == "min":
+        node_feature_df = all_node_feats.groupby('node').min()
+    else:
+        node_feature_df = all_node_feats.groupby('node').max()
+    num_nodes = node_feature_df.index.max() + 1
+    x_df = pd.DataFrame(index=range(num_nodes))
+    x_df = x_df.join(node_feature_df, how='left').fillna(0)
+    node_features = torch.tensor(x_df.values, dtype=torch.float)
+    print(f"node_features shape: {node_features.shape}")
+    # node_features = torch.cat([in_deg, out_deg, total_deg, pr, clust], dim=1)
 
     # edge features
     if use_graph_features:
-        edge_features = cat_features + num_features
+        edge_features = [col for col in (cat_features + num_features) if
+                         not col.startswith("sender_") or not col.startswith("receiver_")]
     else:
         edge_features = [col for col in (cat_features + num_features) if col not in graph_features]
     # Split logic
@@ -166,6 +169,8 @@ def prepare_pg_graph_data(df, cat_features=None, num_features=None, drop_ratio=0
     feature_df.fillna(0, inplace=True)
     cat_features = [col for col in cat_features if col in edge_features]
     num_features = [col for col in num_features if col in edge_features]
+    print(f"\033[90mEdge features:\033[0m")
+    print(list(edge_features))
     print(cat_features)
     print(feature_df.columns)
     preprocessor = ColumnTransformer([
@@ -174,7 +179,6 @@ def prepare_pg_graph_data(df, cat_features=None, num_features=None, drop_ratio=0
     ])
     features = preprocessor.fit_transform(feature_df).astype(np.float32)
     edge_attr = torch.tensor(features, dtype=torch.float)
-
 
     # Labels
     labels = torch.tensor(df['label'].values, dtype=torch.long)
@@ -205,14 +209,18 @@ def get_args():
     parser.add_argument("--epochs", type=int, default=100, help="Number of training epochs (default: 100)")
     parser.add_argument("--learning_rate", type=float, default=0.01, help="learning rate(default:0.01")
     parser.add_argument("--hidden_size", type=int, default=128, help="Size of hidden layers (default: 128)")
-    parser.add_argument("--gnn_type", type=str, choices=["GIN", "GAT", "GCN"], default="GCN",
+    parser.add_argument("--gnn_type", type=str, choices=["GIN", "GAT", "GCN", "GINE", "NNConv"], default="GCN",
                         help="Type of GNN model: GIN, GAT, or GCN (default: GCN)")
     parser.add_argument("--num_layers", type=int, default=2, help="Number of GNN layers")
     parser.add_argument("--dropout", type=float, default=0.0, help="dropout rate")
     parser.add_argument("--dataset_name", type=str,
-                        choices=['AMLSim', 'BitcoinOTC', 'BitcoinAlpha', 'EllipticPP', 'PaySim', 'SAMLSim'], default="AMLSim")
+                        choices=['AMLSim', 'BitcoinOTC', 'BitcoinAlpha', 'EllipticPP', 'PaySim', 'SAMLSim'],
+                        default="AMLSim")
     parser.add_argument("--drop_ratio", type=float, default=0.0, help="drop_ratio of dataset (default:0.0")
     parser.add_argument("--use_graph_features", action="store_true", help="enable using graph features in GNN")
+    parser.add_argument("--feature_agg_fun", type=str,
+                        choices=['min', 'max', 'mean'],
+                        default="mean")
     return parser.parse_args()
 
 
@@ -227,6 +235,7 @@ def main():
     num_layers = args.num_layers
     dropout = args.dropout
     use_graph_features = args.use_graph_features
+    feature_agg_fun = args.feature_agg_fun
     print(f"\033[94m{dataset_name}\033[0m")
     print(f"\033[91m{gnn_type}\033[0m")
     match dataset_name:
@@ -238,6 +247,7 @@ def main():
             df = pd.read_parquet('./data/SAMLSim/processed/enriched_7_8_1_data.parquet')
         case 'EllipticPP':
             df = pd.read_parquet('./data/EllipticPP/processed/enriched_1_8_1_data.parquet')
+            df = df[df['window_index'] < 43]
         case 'BitcoinOTC':
             df = pd.read_parquet('./data/BitcoinOTC/processed/enriched_7_56_7_data.parquet')
         case 'BitcoinAlpha':
@@ -256,15 +266,17 @@ def main():
     print("numerical_cols:")
     print(numerical_cols)
     train_data, val_data, test_data = prepare_pg_graph_data(df, categorical_cols, numerical_cols, drop_ratio=drop_ratio,
-                                                            use_graph_features=use_graph_features)
-    # train_data = create_pg_data(df, categorical_cols, numerical_cols, 28,32)
-    # val_data = create_pg_data(df, categorical_cols, numerical_cols, 33,35)
-    # test_data = create_pg_data(df, categorical_cols, numerical_cols, 36,39)
+                                                            use_graph_features=use_graph_features,
+                                                            feature_agg_fun=feature_agg_fun)
     lightning_root_dir = "experiments/gnn_run/edge_level/normal"
     experiment_datetime = datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
     experiments_dir = f"{lightning_root_dir}/{dataset_name}/{gnn_type}/{experiment_datetime}"
-    model = EdgeFraudNet(train_data.x.shape[1], edge_attr_dim=train_data.edge_attr.size(1), hidden_size=hidden_size,
-                         num_layers=num_layers, dropout=dropout)
+    if gnn_type in ["GIN", "GAT", "GCN"]:
+        model = EdgeFraudNet(train_data.x.shape[1], edge_attr_dim=train_data.edge_attr.size(1), hidden_size=hidden_size,
+                             gnn_type=gnn_type, num_layers=num_layers, dropout=dropout)
+    else:
+        model = EdgeFraudNetEdgeMP(train_data.x.shape[1], edge_attr_dim=train_data.edge_attr.size(1),
+                                   hidden_size=hidden_size, gnn_type=gnn_type, num_layers=num_layers, dropout=dropout)
     csv_logger = CSVLogger(experiments_dir, version="")
     csv_logger.log_hyperparams(vars(args))
     lightningModule = LightningEdgeGNN(model, learning_rate=learning_rate)
@@ -276,11 +288,11 @@ def main():
         dirpath=experiments_dir,
         filename="best-checkpoint"
     )
-    early_stopping_callback = EarlyStopping(
-        monitor='val_avg_pr',
-        mode='max',
-        patience=30
-    )
+    # early_stopping_callback = EarlyStopping(
+    #     monitor='val_avg_pr',
+    #     mode='max',
+    #     patience=80
+    # )
     print(f"\033[93m{vars(args)}\033[0m")
     print(train_data)
     print(val_data)
@@ -299,7 +311,7 @@ def main():
         logger=csv_logger,
         log_every_n_steps=5,
         max_epochs=epochs,
-        callbacks=[checkpoint_callback,early_stopping_callback]
+        callbacks=[checkpoint_callback]
     )
     print("Starting Training")
     trainer.fit(lightningModule, train_loader, val_loader)

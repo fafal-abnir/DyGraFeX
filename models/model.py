@@ -1,14 +1,14 @@
 import torch_geometric.nn as geom_nn
+import torch_geometric.nn as pyg_nn
 import torch
 import torch.nn as nn
-import torch_geometric.nn as pyg_nn
 import torch.nn.functional as F
-from torch.nn import Linear
-
+from torch_geometric.nn import GINEConv, NNConv
+from torch.nn import Linear, Sequential, ReLU
 
 
 class EdgeFraudNet(nn.Module):
-    def __init__(self, input_dim, edge_attr_dim, hidden_size=16, gnn_type="GCN",
+    def __init__(self, input_dim, edge_attr_dim, hidden_size=16, gnn_type="GIN",
                  num_layers=2,
                  dropout=0.0, heads=1):
         super().__init__()
@@ -57,3 +57,41 @@ class EdgeFraudNet(nn.Module):
         _, embeddings = self.forward(x, edge_index)
         return embeddings
 
+class EdgeFraudNetEdgeMP(nn.Module):
+    def __init__(self, input_dim, edge_attr_dim, hidden_size=16, gnn_type="GINE", num_layers=2, dropout=0.0):
+        super().__init__()
+        self.preprocess = Linear(input_dim, hidden_size)
+        self.convs = nn.ModuleList()
+        self.gnn_type = gnn_type
+        self.dropout = dropout
+        for _ in range(num_layers):
+            if gnn_type == "GINE":
+                edge_nn = Sequential(Linear(edge_attr_dim, hidden_size), ReLU(), Linear(hidden_size, hidden_size))
+                self.convs.append(GINEConv(nn=Sequential(Linear(hidden_size, hidden_size), ReLU()), edge_dim=edge_attr_dim))
+            elif gnn_type == "NNConv":
+                edge_nn = Sequential(Linear(edge_attr_dim, hidden_size * hidden_size))
+                self.convs.append(NNConv(hidden_size, hidden_size, edge_nn, aggr="mean"))
+            else:
+                raise ValueError("Unsupported GNN type with edge features. Use GINE or NNConv.")
+
+        # Output layer combines source, destination embeddings and edge features
+        self.out_mlp = Linear(2 * hidden_size + edge_attr_dim, 1)
+
+    def forward(self, x, edge_index, edge_attr):
+        h = F.leaky_relu(self.preprocess(x))
+
+        for conv in self.convs:
+            h = conv(h, edge_index, edge_attr)
+            h = F.leaky_relu(h)
+            h = F.dropout(h, p=self.dropout, training=self.training)
+
+        h_src = h[edge_index[0]]
+        h_dst = h[edge_index[1]]
+        combined = torch.cat([h_src, h_dst, edge_attr], dim=1)
+        out = self.out_mlp(combined)
+
+        return out.view(-1), h
+
+    def get_embedding(self, x, edge_index, edge_attr):
+        _, embeddings = self.forward(x, edge_index, edge_attr)
+        return embeddings
