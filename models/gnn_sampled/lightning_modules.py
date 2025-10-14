@@ -24,7 +24,9 @@ class LightningEdgeGNN(L.LightningModule):
         x = data.x
         edge_index = data.edge_index
         edge_attr = data.edge_attr
-        pred, embeddings = self.model(x, edge_index, edge_attr)
+        edge_label_index = data.edge_label_index
+        edge_label_attr = data.edge_label_attr
+        pred, embeddings = self.model(x, edge_index, edge_attr, edge_label_index,edge_label_attr)
         return pred, embeddings
 
     def configure_optimizers(self):
@@ -35,14 +37,18 @@ class LightningEdgeGNN(L.LightningModule):
         start_time = time.time()
         # mask = batch.node_mask
         # labels = batch.y[mask]
-        labels = batch.y
+        labels = batch.edge_label
+        num_pos = (labels == 1).sum().float()
+        num_neg = (labels == 0).sum().float()
+        pos_weight = num_neg / (num_pos + 1e-6)
         pred, _ = self.forward(batch)
         # classification loss
-        bce_loss = self.loss_fn(pred, labels.type_as(pred))
+        loss_fn = BCEWithLogitsLoss(pos_weight=pos_weight)
+        bce_loss = loss_fn(pred, labels.type_as(pred))
         self.log("bce_loss", bce_loss, on_step=False, on_epoch=True, prog_bar=True, logger=False)
         pred_cont = torch.sigmoid(pred)
-        avg_pr = self.metric_avgpr(pred_cont, batch.y.int())
-        auc_roc = self.metric_auroc(pred_cont, batch.y.int())
+        avg_pr = self.metric_avgpr(pred_cont, labels.int())
+        auc_roc = self.metric_auroc(pred_cont, labels.int())
         num_total = labels.numel()
         num_pos = (labels == 1).sum().item()
         skew_ratio = num_pos / float(num_total)
@@ -84,6 +90,18 @@ class LightningEdgeGNN(L.LightningModule):
         self.log("test_aucnpr", aucnpr)
         self.log("test_au_roc", auc_roc)
         self.log("test_loss", loss)
+
+    def on_train_epoch_start(self):
+        self.metric_avgpr.reset()
+        self.metric_auroc.reset()
+
+    def on_validation_epoch_start(self):
+        self.metric_avgpr.reset()
+        self.metric_auroc.reset()
+
+    def on_test_epoch_start(self):
+        self.metric_avgpr.reset()
+        self.metric_auroc.reset()
 
     def get_node_embeddings(self, batch):
         """Extracts node embeddings before and after training."""

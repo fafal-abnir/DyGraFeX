@@ -10,8 +10,8 @@ from torch_geometric.utils import degree
 import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-from models.model import EdgeFraudNet
-from models.lightning_modules import LightningEdgeGNN
+from models.gnn_full.model import EdgeFraudNet
+from models.gnn_full.lightning_modules import LightningEdgeGNN
 from pytorch_lightning.callbacks import ModelCheckpoint
 
 drop_cols = ['time_step', 'isFlaggedFraud', 'laundering_type', 'timestamp', 'txId', 'id', 'tx_id', 'alert_id',

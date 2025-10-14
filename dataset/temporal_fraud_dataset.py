@@ -9,14 +9,15 @@ from utils.utils import generate_graph
 
 
 class TemporalFraudDataset(ABC):
-    def __init__(self, save_dir: str = "data", window_size: int = 7, time_step: int = 1, graph_window_size: int = 7,
+    def __init__(self, save_dir: str = "data", window_size: int = 7, target_time_step: int = 1,
+                 graph_window_size: int = 7,
                  force_reload=False):
         self.save_dir = Path(save_dir)
         self.raw_dir = Path(f"{self.save_dir}/raw_dir")
         self.processed_dir = Path(f"{self.save_dir}/processed")
         self.graph_window_size = graph_window_size
         self.window_size = window_size
-        self.time_step = time_step
+        self.target_time_step = target_time_step
         self.raw_dir.mkdir(parents=True, exist_ok=True)
         self.save_dir.mkdir(parents=True, exist_ok=True)
         self.processed_dir.mkdir(parents=True, exist_ok=True)
@@ -49,23 +50,24 @@ class TemporalFraudDataset(ABC):
         return generate_graph(df, 'sender', 'receiver')
 
     def enrich_with_graph_features(self):
-        time_step = self.time_step
+        target_time_step = self.target_time_step
         COMMUNITY_ALG = {'louvain': [1.0], 'leiden': [0.01, 0.04]}
         result_graph_feature_df = None
         df = self.load_data()
         max_time_step = max(df['window_index'])
-        OUTPUT_PATH = self.processed_dir / f"g_{self.window_size}_{self.graph_window_size}_{time_step}_data.parquet"
-        for time_step in range(1, max_time_step + 1 - self.graph_window_size, time_step):
+        OUTPUT_PATH = self.processed_dir / f"g_{self.window_size}_{self.graph_window_size}_{target_time_step}_data.parquet"
+        for time_step in range(1, max_time_step + 1 - self.graph_window_size, target_time_step):
 
             print(10 * "=")
             print(f"Time step:{time_step}, graph from time_step:[{time_step},{time_step + self.graph_window_size - 1}]")
             # financial graph for feature extraction
             transaction_graph = self.get_graph_window_range(time_step, time_step + self.graph_window_size)
+            print(transaction_graph.summary())
             # target data for enriching with graph features
             # target_time_step_df_wallet = df[
             #     df_wallets_features_classes_combined['Time step'] == time_step + WINDOW_SIZE]
             target_df = self.get_window_range(time_step + self.graph_window_size,
-                                              time_step + self.graph_window_size + 1)
+                                              time_step + self.graph_window_size + target_time_step)
 
             # enriching dataset
             r = enrich_with_edge_features(transaction_graph, target_df)
@@ -113,20 +115,20 @@ class TemporalFraudDataset(ABC):
         and tabular (non-graph) features, and save it as file in processed directory.
         """
         graph_parquet_path = self.processed_dir / f"g_{self.window_size}_{self.graph_window_size}" \
-                                                  f"_{self.time_step}_data.parquet"
+                                                  f"_{self.target_time_step}_data.parquet"
 
         enriched_parquet_path = self.processed_dir / f"enriched_{self.window_size}_{self.graph_window_size}" \
-                                                     f"_{self.time_step}_data.parquet"
+                                                     f"_{self.target_time_step}_data.parquet"
         if enriched_parquet_path.exists() and not force_reload:
             print(f"{enriched_parquet_path} exist no need to process.")
             return
 
         graph_df = pd.read_parquet(graph_parquet_path)
         result_enriched_df = None
-        time_step = self.time_step
+        window_size = self.window_size
         min_time_step = min(graph_df['window_index'])
         max_time_step = max(graph_df['window_index'])
-        for t in range(min_time_step, max_time_step, time_step):
+        for t in range(min_time_step, max_time_step, window_size):
 
             print(10 * "=")
             print(f"Enriching step:{t}")

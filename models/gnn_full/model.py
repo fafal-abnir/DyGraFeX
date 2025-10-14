@@ -24,6 +24,7 @@ class EdgeFraudNet(nn.Module):
             else:  # GCN
                 self.convs.append(pyg_nn.GCNConv(hidden_size, hidden_size))
         self.postprocessing1 = geom_nn.Linear(2 * hidden_size + edge_attr_dim, 1)
+        # self.postprocessing1 = geom_nn.Linear(2 * hidden_size, 1)
         self.dropout = dropout
 
     def reset_parameters(self):
@@ -31,7 +32,7 @@ class EdgeFraudNet(nn.Module):
         self.conv2.reset_parameters()
         self.postprocessing1.reset_parameters()
 
-    def forward(self, x, edge_index, edge_attr):
+    def forward(self, x, edge_index, edge_attr, edge_label_index):
         # Preprocess step
         # h is embedding, out classification is for anomaly score
         h = self.preprocess1(x)
@@ -44,17 +45,20 @@ class EdgeFraudNet(nn.Module):
             h = conv(h, edge_index)
             h = F.leaky_relu(h)
             h = F.dropout(h, p=self.dropout, training=self.training)
-        h_src = h[edge_index[0]]
-        h_dst = h[edge_index[1]]
+        # h_src = h[edge_index[0]]
+        # h_dst = h[edge_index[1]]
+        h_src = h[edge_label_index[0]]
+        h_dst = h[edge_label_index[1]]
         combined = torch.cat([h_src, h_dst, edge_attr], dim=1)
+        # combined = torch.cat([h_src, h_dst], dim=1)
         out = self.postprocessing1(combined)
         # h = self.postprocessing1(h_hat)
         # CLS layer
         out = out.view(-1)
         return out, h
 
-    def get_embedding(self, x, edge_index):
-        _, embeddings = self.forward(x, edge_index)
+    def get_embedding(self, x, edge_index, edge_label_index):
+        _, embeddings = self.forward(x, edge_index, edge_label_index)
         return embeddings
 
 class EdgeFraudNetEdgeMP(nn.Module):

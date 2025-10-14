@@ -15,6 +15,7 @@
 *.vcf
 *.xml
 *.parquet
+test_*
 /test/
 /experiments/
 ### PyCharm+all ###

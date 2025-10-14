@@ -1,17 +1,16 @@
-python3 ensemble_model.py --dataset_name AMLSim --model Lightgbm;
-python3 ensemble_model.py --dataset_name AMLSim --model Xgboost;
-python3 ensemble_model.py --dataset_name AMLSim --model Catboost;
-python3 ensemble_model.py --dataset_name AMLSim --model Randomforest;
 
 python3 ensemble_model.py --dataset_name PaySim --model Lightgbm;
-python3 ensemble_model.py --dataset_name PaySim --model Xgboost;
-python3 ensemble_model.py --dataset_name PaySim --model Catboost;
-python3 ensemble_model.py --dataset_name PaySim --model Randomforest;
+python3 ensemble_model.py --dataset_name PaySim --model Xgboost --undersample_frac=0.5;
+python3 ensemble_model.py --dataset_name PaySim --model Catboost --undersample_frac=0.5;
+python3 ensemble_model.py --dataset_name PaySim --model Randomforest --undersample_frac=0.5;
 
-python3 ensemble_model.py --dataset_name SAMLSim --model Lightgbm;
-python3 ensemble_model.py --dataset_name SAMLSim --model Xgboost;
-python3 ensemble_model.py --dataset_name SAMLSim --model Catboost;
-python3 ensemble_model.py --dataset_name SAMLSim --model Randomforest;
+python3 ensemble_model.py --dataset_name AMLSim --model Lightgbm;
+python3 ensemble_model.py --dataset_name AMLSim --model Xgboost --undersample_frac=0.5 --remove_leakage;
+python3 ensemble_model.py --dataset_name AMLSim --model Catboost --undersample_frac=0.5 --remove_leakage;
+python3 ensemble_model.py --dataset_name AMLSim --model Randomforest --undersample_frac=0.5 --remove_leakage;
+python3 ensemble_model.py --dataset_name SAMLSim --model Xgboost --undersample_frac=0.5;
+python3 ensemble_model.py --dataset_name SAMLSim --model Catboost --undersample_frac=0.5;
+python3 ensemble_model.py --dataset_name SAMLSim --model Randomforest --undersample_frac=0.5;
 
 python3 ensemble_model.py --dataset_name BitcoinOTC --model Lightgbm;
 python3 ensemble_model.py --dataset_name BitcoinOTC --model Xgboost;
@@ -23,120 +22,117 @@ python3 ensemble_model.py --dataset_name BitcoinAlpha --model Xgboost;
 python3 ensemble_model.py --dataset_name BitcoinAlpha --model Catboost;
 python3 ensemble_model.py --dataset_name BitcoinAlpha --model Randomforest;
 
+python3 ensemble_model.py --dataset_name AMLSim --model Randomforest;
+python3 ensemble_model.py --dataset_name AMLSim --model Randomforest;
+python3 ensemble_model.py --dataset_name AMLSim --model Randomforest;
+python3 ensemble_model.py --dataset_name AMLSim --model Xgboost;
+python3 ensemble_model.py --dataset_name AMLSim --model Xgboost;
+python3 ensemble_model.py --dataset_name AMLSim --model Xgboost;
+python3 ensemble_model.py --dataset_name AMLSim --model Catboost;
+python3 ensemble_model.py --dataset_name AMLSim --model Catboost;
+python3 ensemble_model.py --dataset_name AMLSim --model Catboost;
+
+python3 ensemble_model.py --dataset_name SAMLSim --model Randomforest;
+python3 ensemble_model.py --dataset_name SAMLSim --model Randomforest;
+python3 ensemble_model.py --dataset_name SAMLSim --model Randomforest;
+python3 ensemble_model.py --dataset_name SAMLSim --model Xgboost;
+python3 ensemble_model.py --dataset_name SAMLSim --model Xgboost;
+python3 ensemble_model.py --dataset_name SAMLSim --model Xgboost;
+python3 ensemble_model.py --dataset_name SAMLSim --model Catboost;
+python3 ensemble_model.py --dataset_name SAMLSim --model Catboost;
+python3 ensemble_model.py --dataset_name SAMLSim --model Catboost;
+
+python3 catchm_new_run.py --dataset_name=EllipticPP --dimensions=32 --walk_len=80 --walk_num=10 --window_size=5;
+python3 catchm_new_run.py --dataset_name=EllipticPP --dimensions=32 --walk_len=80 --walk_num=10 --window_size=5;
+python3 catchm_new_run.py --dataset_name=EllipticPP --dimensions=32 --walk_len=80 --walk_num=10 --window_size=5;
+python3 catchm_new_run.py --dataset_name=EllipticPP --dimensions=32 --walk_len=80 --walk_num=10 --window_size=5;
+python3 catchm_new_run.py --dataset_name=AMLSim --dimensions=32 --walk_len=80 --walk_num=10 --window_size=5;
+python3 catchm_new_run.py --dataset_name=AMLSim --dimensions=32 --walk_len=80 --walk_num=10 --window_size=5;
+python3 catchm_new_run.py --dataset_name=AMLSim --dimensions=32 --walk_len=80 --walk_num=10 --window_size=5;
+python3 catchm_new_run.py --dataset_name=AMLSim --dimensions=32 --walk_len=80 --walk_num=10 --window_size=5;
+
+
+python3 ensemble_model.py --dataset_name EllipticPP --model Xgboost;
+python3 ensemble_model.py --dataset_name EllipticPP --model Xgboost;
 python3 ensemble_model.py --dataset_name EllipticPP --model Xgboost;
 python3 ensemble_model.py --dataset_name EllipticPP --model Catboost;
+python3 ensemble_model.py --dataset_name EllipticPP --model Catboost;
+python3 ensemble_model.py --dataset_name EllipticPP --model Catboost;
 python3 ensemble_model.py --dataset_name EllipticPP --model Randomforest;
+python3 ensemble_model.py --dataset_name EllipticPP --model Randomforest;
+python3 ensemble_model.py --dataset_name EllipticPP --model Randomforest;
+
+python3 ensemble_model.py --dataset_name AMLWorld_HI_Medium --model Lightgbm  --remove_leakage;
+python3 ensemble_model.py --dataset_name AMLWorld_HI_Medium --model Lightgbm  --remove_leakage --enable_gfp;
+python3 ensemble_model.py --dataset_name AMLWorld_HI_Medium --model Xgboost  --remove_leakage;
+python3 ensemble_model.py --dataset_name AMLWorld_HI_Medium --model Xgboost  --remove_leakage --enable_gfp;
+python3 ensemble_model.py --dataset_name AMLWorld_HI_Medium --model Catboost --remove_leakage;
+python3 ensemble_model.py --dataset_name AMLWorld_HI_Medium --model Catboost --remove_leakage --enable_gfp;
+
+
+python3 ensemble_model.py --dataset_name AMLWorld_LI_Medium --model Lightgbm --remove_leakage;
+python3 ensemble_model.py --dataset_name AMLWorld_LI_Medium --model Lightgbm --remove_leakage --enable_gfp;
+python3 ensemble_model.py --dataset_name AMLWorld_LI_Medium --model Xgboost  --remove_leakage;
+python3 ensemble_model.py --dataset_name AMLWorld_LI_Medium --model Xgboost  --remove_leakage --enable_gfp;
+python3 ensemble_model.py --dataset_name AMLWorld_LI_Medium --model Catboost  --remove_leakage;
+python3 ensemble_model.py --dataset_name AMLWorld_LI_Medium --model Catboost  --remove_leakage --enable_gfp;
+
+python3 ensemble_model.py --dataset_name AMLWorld_HI_Small --model Lightgbm  --remove_leakage;
+python3 ensemble_model.py --dataset_name AMLWorld_HI_Small --model Lightgbm  --remove_leakage --enable_gfp;
+python3 ensemble_model.py --dataset_name AMLWorld_HI_Small --model Xgboost  --remove_leakage;
+python3 ensemble_model.py --dataset_name AMLWorld_HI_Small --model Xgboost  --remove_leakage --enable_gfp;
+python3 ensemble_model.py --dataset_name AMLWorld_HI_Small --model Catboost  --remove_leakage;
+python3 ensemble_model.py --dataset_name AMLWorld_HI_Small --model Catboost  --remove_leakage --enable_gfp;
+
+
+
+python3 ensemble_model.py --dataset_name AMLWorld_LI_Small --model Lightgbm  --remove_leakage;
+python3 ensemble_model.py --dataset_name AMLWorld_LI_Small --model Lightgbm  --remove_leakage --enable_gfp;
+python3 ensemble_model.py --dataset_name AMLWorld_LI_Small --model Xgboost  --remove_leakage;
+python3 ensemble_model.py --dataset_name AMLWorld_LI_Small --model Xgboost  --remove_leakage --enable_gfp;
+python3 ensemble_model.py --dataset_name AMLWorld_LI_Small --model Catboost --remove_leakage;
+python3 ensemble_model.py --dataset_name AMLWorld_LI_Small --model Catboost  --remove_leakage --enable_gfp;
+
+
+python3 ensemble_model.py --dataset_name AMLWorld_HI_Medium --model RandomForest;
+
+
+
+
 ############################ GNN ############################
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=32 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=32 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=32 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=32 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=64 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=64 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=64 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=64 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=128 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=128 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=128 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GIN --hidden_size=32 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GIN --hidden_size=32 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GIN --hidden_size=32 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GIN --hidden_size=32 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GIN --hidden_size=64 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GIN --hidden_size=64 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GIN --hidden_size=64 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GIN --hidden_size=64 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GIN --hidden_size=128 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GIN --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GIN --hidden_size=128 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GIN --hidden_size=128 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GCN --hidden_size=32 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GCN --hidden_size=32 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GCN --hidden_size=32 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GCN --hidden_size=32 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GCN --hidden_size=64 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GCN --hidden_size=64 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GCN --hidden_size=64 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GCN --hidden_size=64 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GCN --hidden_size=128 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GCN --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GCN --hidden_size=128 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GCN --hidden_size=128 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GCN --hidden_size=32 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GCN --hidden_size=32 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GCN --hidden_size=32 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GCN --hidden_size=32 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GCN --hidden_size=64 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GCN --hidden_size=64 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GCN --hidden_size=64 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GCN --hidden_size=64 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GCN --hidden_size=128 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GCN --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GCN --hidden_size=128 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GCN --hidden_size=128 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=32 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=32 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=32 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=32 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=64 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=64 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=64 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=64 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=128 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=128 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=128 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=32 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=32 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=32 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=32 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=64 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=64 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=64 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=64 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=128 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=128 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=128 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-
-##EllipticPP
-python3 gnn_run.py --dataset_name EllipticPP --num_layers=1 --gnn_type=GAT --hidden_size=32 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=32 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=32 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=32 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=64 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=64 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=64 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=64 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=128 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=128 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GAT --hidden_size=128 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=32 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=32 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=32 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=32 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=64 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=64 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=64 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=64 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=128 --dropout=0.0 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=128 --dropout=0.2 --use_graph_features --learning_rate=0.005 --epochs=1000;
-python3 gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GAT --hidden_size=128 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-
-#### Sliding GNN
-#AMLSim
-python3 sliding_gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 sliding_gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000 --use_graph_features;
-python3 sliding_gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 sliding_gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000 --use_graph_features;
-python3 sliding_gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 sliding_gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000 --use_graph_features;
-python3 sliding_gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GIN --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000;
-python3 sliding_gnn_run.py --dataset_name AMLSim --num_layers=2 --gnn_type=GIN --hidden_size=128 --dropout=0.0 --learning_rate=0.005 --epochs=1000 --use_graph_features;
-python3 sliding_gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=128 --dropout=0.2 --learning_rate=0.005 --epochs=1000;
-python3 sliding_gnn_run.py --dataset_name AMLSim --num_layers=1 --gnn_type=GIN --hidden_size=128 --dropout=0.2 --learning_rate=0.005 --epochs=1000 --use_graph_features;
+python3 gnn_run_test_copy_list.py --dataset_name=EllipticPP --gnn_type=GIN --dropout=0.1 --learning_rate=0.0001 --num_layers=1 --epochs=200 --use_graph_features;
+python3 gnn_run_test_copy_list.py --dataset_name=EllipticPP --gnn_type=GIN --dropout=0.1 --learning_rate=0.0001 --num_layers=1 --epochs=200;
+python3 gnn_run_test_copy_list.py --dataset_name=EllipticPP --gnn_type=GAT --dropout=0.1 --learning_rate=0.0001 --num_layers=1 --epochs=200 --use_graph_features;
+python3 gnn_run_test_copy_list.py --dataset_name=EllipticPP --gnn_type=GAT --dropout=0.1 --learning_rate=0.0001 --num_layers=1 --epochs=200;
+python3 gnn_run_test_copy_list.py --dataset_name=EllipticPP --gnn_type=GCN --dropout=0.1 --learning_rate=0.0001 --num_layers=1 --epochs=200 --use_graph_features;
+python3 gnn_run_test_copy_list.py --dataset_name=EllipticPP --gnn_type=GCN --dropout=0.1 --learning_rate=0.0001 --num_layers=1 --epochs=200;
+python3 gnn_run_test_copy_list.py --dataset_name=EllipticPP --gnn_type=GINE --dropout=0.1 --learning_rate=0.0001 --num_layers=1 --epochs=200 --use_graph_features;
+python3 gnn_run_test_copy_list.py --dataset_name=EllipticPP --gnn_type=GINE --dropout=0.1 --learning_rate=0.0001 --num_layers=1 --epochs=200;
+python3 gnn_run_test_copy_list.py --dataset_name=EllipticPP --gnn_type=GATv2 --dropout=0.1 --learning_rate=0.0001 --num_layers=1 --epochs=200 --use_graph_features;
+python3 gnn_run_test_copy_list.py --dataset_name=EllipticPP --gnn_type=GATv2 --dropout=0.1 --learning_rate=0.0001 --num_layers=1 --epochs=200;
+python3 gnn_run_test_copy_list.py --dataset_name=EllipticPP --gnn_type=TransformerConv --dropout=0.1 --learning_rate=0.0001 --num_layers=1 --epochs=200 --use_graph_features;
+python3 gnn_run_test_copy_list.py --dataset_name=EllipticPP --gnn_type=TransformerConv --dropout=0.1 --learning_rate=0.0001 --num_layers=1 --epochs=200;
+python3 gnn_run_test_copy_list.py --dataset_name=SAMLSim --gnn_type=GIN --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200 --use_graph_features;
+python3 gnn_run_test_copy_list.py --dataset_name=SAMLSim --gnn_type=GIN --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200;
+python3 gnn_run_test_copy_list.py --dataset_name=SAMLSim --gnn_type=GAT --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200 --use_graph_features;
+python3 gnn_run_test_copy_list.py --dataset_name=SAMLSim --gnn_type=GAT --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200;
+python3 gnn_run_test_copy_list.py --dataset_name=SAMLSim --gnn_type=GCN --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200 --use_graph_features;
+python3 gnn_run_test_copy_list.py --dataset_name=SAMLSim --gnn_type=GCN --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200;
+python3 gnn_run_test_copy_list.py --dataset_name=SAMLSim --gnn_type=GINE --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200 --use_graph_features;
+python3 gnn_run_test_copy_list.py --dataset_name=SAMLSim --gnn_type=GINE --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200;
+python3 gnn_run_test_copy_list.py --dataset_name=SAMLSim --gnn_type=GATv2 --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200 --use_graph_features;
+python3 gnn_run_test_copy_list.py --dataset_name=SAMLSim --gnn_type=GATv2 --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200;
+python3 gnn_run_test_copy_list.py --dataset_name=SAMLSim --gnn_type=TransformerConv --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200 --use_graph_features;
+python3 gnn_run_test_copy_list.py --dataset_name=SAMLSim --gnn_type=TransformerConv --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200;
+python3 gnn_run_test_copy_list.py --dataset_name=AMLSim --gnn_type=GIN --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200 --use_graph_features;
+python3 gnn_run_test_copy_list.py --dataset_name=AMLSim --gnn_type=GIN --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200;
+python3 gnn_run_test_copy_list.py --dataset_name=AMLSim --gnn_type=GAT --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200 --use_graph_features;
+python3 gnn_run_test_copy_list.py --dataset_name=AMLSim --gnn_type=GAT --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200;
+python3 gnn_run_test_copy_list.py --dataset_name=AMLSim --gnn_type=GCN --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200 --use_graph_features;
+python3 gnn_run_test_copy_list.py --dataset_name=AMLSim --gnn_type=GCN --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200;
+python3 gnn_run_test_copy_list.py --dataset_name=AMLSim --gnn_type=GINE --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200 --use_graph_features;
+python3 gnn_run_test_copy_list.py --dataset_name=AMLSim --gnn_type=GINE --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200;
+python3 gnn_run_test_copy_list.py --dataset_name=AMLSim --gnn_type=GATv2 --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200 --use_graph_features;
+python3 gnn_run_test_copy_list.py --dataset_name=AMLSim --gnn_type=GATv2 --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200;
+python3 gnn_run_test_copy_list.py --dataset_name=AMLSim --gnn_type=TransformerConv --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200 --use_graph_features;
+python3 gnn_run_test_copy_list.py --dataset_name=AMLSim --gnn_type=TransformerConv --dropout=0.1 --learning_rate=0.001 --num_layers=1 --hidden_size=128 --epochs=200;
