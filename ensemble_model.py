@@ -151,7 +151,7 @@ def get_model(name, imbalance_ratio):
             boosting_type='gbdt',
             objective='binary',
             metric='aucpr',
-            n_estimators=285,  # equivalent to num_round
+            n_estimators=185,  # equivalent to num_round
             num_leaves=31,
             max_bin=256,
             learning_rate=0.08995441299910924,
@@ -166,7 +166,7 @@ def get_model(name, imbalance_ratio):
         )
     elif name == "Xgboost":
         return XGBClassifier(
-            n_estimators=1000,
+            n_estimators=800,
             learning_rate=0.1,
             max_depth=8,
             subsample=0.8,
@@ -178,7 +178,7 @@ def get_model(name, imbalance_ratio):
         )
     elif name == "Catboost":
         return CatBoostClassifier(
-            iterations=1000,
+            iterations=800,
             learning_rate=0.1,
             depth=8,
             class_weights=[1.0, imbalance_ratio],

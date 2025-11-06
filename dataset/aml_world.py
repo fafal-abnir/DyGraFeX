@@ -184,7 +184,7 @@ class AMLWorldDataset(TemporalFraudDataset):
         base_cols = [str(c) for c in df.columns]
         num_cols_base =  min(len(base_cols), num_cols_with_gfp)
         cols = base_cols[:num_cols_base] + [f"gfp_{i}" for i in range(num_cols_with_gfp - num_cols_base)]
-        parquet_gfp_file_path = self.processed_dir / f"data_{self.illicit_level}_{self.data_size}_gfp.parquet"
+        parquet_gfp_file_path = self.processed_dir / f"data_{self.illicit_level}_{self.data_size}_gfp_{tw_days}.parquet"
         pd.DataFrame(data_np_gf, columns=cols).to_parquet(
             parquet_gfp_file_path, engine="pyarrow", compression="snappy", index=False
         )
