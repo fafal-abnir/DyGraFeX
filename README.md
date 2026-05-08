@@ -16,10 +16,7 @@ Prerequisites :
 * [Poetry](https://python-poetry.org/)
 
 ### Installing
-Clone the repository to your local machine using the following command:
-```
-[TODO] put the git link
-```
+Clone the repository to your local machine.
 To activate the virtual environment and install the required packages, navigate to the project directory and run the following commands:
 ```
 poetry shell
@@ -41,7 +38,7 @@ Once `data.parquet` exists, call:
 
 Integration is done via joins: precomputed graph features are merged with default features on transaction keys/time windows. See `saml_sim_dataset.py` and `ellipticplusplus.py` for concrete examples.
 
-For the AMLWorld datasets, this repository provides an example of how to enrich transaction data with another method:Graph Feature Processing (GFP). The enrichment process follows the methodology introduced in “GFP: Graph Feature Processing for Financial Transaction Networks”[(ACM DL, 2024)](https://dl.acm.org/doi/10.1145/3677052.3698674). 
+For the AMLWorld datasets, this repository provides an example of how to enrich transaction data with another method:Graph Feature Processing (GFP). The enrichment process follows the methodology introduced in “GFP: Graph Feature Processing for Financial Transaction Networks”[GFP](https://dl.acm.org/doi/10.1145/3677052.3698674). 
 This allows us to compare our method with GFP baseline.
 
 For each dataset, the **raw transaction data** is stored in the `[dataset_name]/raw_dir` directory, while the **processed and enriched datasets** are saved in `[dataset_name]/processed`. This structure keeps raw data separate from generated features and allows reproducible, organized data preparation for graph-based fraud detection experiments.
