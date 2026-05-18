@@ -20,7 +20,7 @@ Clone the repository to your local machine.
 To activate the virtual environment and install the required packages, navigate to the project directory and run the following commands:
 ```
 poetry shell
-poetry install
+pip3 install -r requirements.txt
 ```
 Abstract dataset API
 
